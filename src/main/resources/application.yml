@@ -1,0 +1,11 @@
+spring:
+  bot:
+    plugin-list:
+      - top.moles.bot.plugin.Bus # Bus
+  data:
+    mongodb:
+      database: moles
+      port: 27017
+      host: 172.17.0.1
+server:
+  port: 8081

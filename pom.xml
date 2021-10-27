@@ -103,7 +103,7 @@
                     <dockerDirectory>${project.basedir}/src/main/resources</dockerDirectory>
 
                     <!--指定远程docker 地址-->
-                    <dockerHost>http://host:port</dockerHost>
+                    <dockerHost>http://moles.top:52375</dockerHost>
 
                     <!-- 这里是复制 jar 包到 docker 容器指定目录配置 -->
                     <resources>

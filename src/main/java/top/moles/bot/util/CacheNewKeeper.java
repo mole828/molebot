@@ -28,6 +28,7 @@ public abstract class CacheNewKeeper<T> {
                 ArrayList list=new ArrayList();
                 list.add(l.getAndAdd(1));
                 list.add(l.getAndAdd(1));
+                list.add(l.getAndAdd(1));
                 return list;
             }
         };

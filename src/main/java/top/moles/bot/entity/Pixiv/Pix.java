@@ -8,9 +8,14 @@ import java.awt.*;
 import java.util.HashMap;
 
 @Data
-public class Pix {
+public class Pix{
     @MongoId
     ObjectId _id;
     Long group;
     Long pid;
+
+    @Override
+    public int hashCode(){
+        return pid.hashCode();
+    }
 }

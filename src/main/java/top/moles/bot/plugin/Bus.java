@@ -7,7 +7,9 @@ import net.lz1998.pbbot.bot.BotPlugin;
 import net.lz1998.pbbot.utils.Msg;
 import onebot.OnebotEvent;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -43,8 +45,42 @@ public class Bus extends BotPlugin {
         //https://github.com/botuniverse/onebot-11/blob/master/event/message.md
         PixivHandler handler=get(event.getGroupId());
         if(event.getRawMessage().equals("hello"))bot.sendGroupMsg(event.getGroupId(),"hi",false);
+
         if(event.getRawMessage().startsWith("涩涩")){
             handler.handle(bot,event);
+        }
+
+        if(event.getRawMessage().startsWith("history")){
+            String[] args = event.getRawMessage().split("\\s+");
+            int limit=5;
+            if(args.length>1){
+                if(args[1].equals("clean")){
+                    log.info(String.format("%s clean",event.getSender()));
+                    handler.clean();
+                    return MESSAGE_BLOCK;
+                }
+                try {
+                    limit= Integer.parseInt(args[1]);
+                    limit= Math.max(1,limit);
+                    if(limit>20){
+                        bot.sendGroupMsg(event.getGroupId(),"<=20",false);
+                        return MESSAGE_BLOCK;
+                    }
+                }catch (Exception e){
+                    bot.sendGroupMsg(event.getGroupId(),"别",false);
+                    return MESSAGE_BLOCK;
+                }
+            }
+            Query query=new Query();
+            query.addCriteria(Criteria.where("group").is(event.getGroupId()));
+            query.with(Sort.by(new Sort.Order(Sort.Direction.DESC,"_id")));
+            query.limit(limit);
+            List<Pix> list=mongo.find(query,Pix.class);
+            Msg msg=Msg.builder();
+            for(Pix p : list){
+                msg.text(String.format("https://www.pixiv.net/artworks/%s\n",p.getPid()));
+            }
+            bot.sendGroupMsg(event.getGroupId(),msg,false);
         }
 
 

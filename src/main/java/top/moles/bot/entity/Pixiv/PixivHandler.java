@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.lz1998.pbbot.bot.Bot;
 import net.lz1998.pbbot.utils.Msg;
 import onebot.OnebotEvent;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,9 +26,11 @@ public class PixivHandler {
         this.cnk=new CacheNewKeeper<Long>() {
             int page=0;
             @Override
-            public List cache() {
+            public List<Long> cache() {
                 try {
-                    return pixivel.rec(page++);
+                    var list = pixivel.rec(page++);
+                    log.info(String.format("page %s find: %s",page,list.size()));
+                    return list;
                 } catch (Exception e) { e.printStackTrace(); }
                 return null;
             }
@@ -43,6 +46,14 @@ public class PixivHandler {
         Timer timer=timers.get(uid);
         if(timer==null){timer=new Timer(9,8*60*60*1000L);timers.put(uid,timer);}
         return timer;
+    }
+    public void clean(){
+        Query query=new Query();
+        query.addCriteria(Criteria.where("group").is(group));
+        List<Pix> list=mongo.find(query,Pix.class);
+        list.forEach(e->mongo.remove(e));
+        this.cnk.keeper().history().get().clear();
+        log.info(String.format("%s clean: %s",group,list.size()));
     }
     public void handle(Bot bot, OnebotEvent.GroupMessageEvent event) {
         if(!cd.ready()){

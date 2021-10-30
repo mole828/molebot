@@ -10,6 +10,7 @@ public class Timer {
     public Timer(int max, long d){
         this.max=max;
         this.d=d;
+        //test
     }
     List<Long> list=new ArrayList<>();
     public boolean next(){
